@@ -84,9 +84,13 @@ export default function App() {
                   Microsoft Foundry. The path below lights up as your message moves through it.
                 </p>
                 <p className="hero__link"><a href="#guide">Read how it was built</a></p>
-                <Flow {...flow.state} lastMs={session.lastMs} />
               </div>
             </section>
+            <div className="flowbar">
+              <div className="wrap">
+                <Flow {...flow.state} lastMs={session.lastMs} />
+              </div>
+            </div>
             <section className="wrap workspace">
               <Chat flow={flow} session={session} setSession={setSession} onReset={resetSession} apiStatus={api.status} />
               <Facts api={api} session={session} />

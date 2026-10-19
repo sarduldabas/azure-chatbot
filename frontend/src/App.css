@@ -92,7 +92,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes blink { 50% { opacity: 0.25; } }
 
 /* ---------- hero ---------- */
-.hero { position: relative; padding: 72px 0 40px; isolation: isolate; }
+.hero { position: relative; padding: 72px 0 8px; isolation: isolate; }
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
@@ -101,14 +101,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .hero h1 { font-size: clamp(2.5rem, 6vw, 4.4rem); line-height: 1.02; letter-spacing: -0.025em; max-width: 18ch; text-wrap: balance; }
 .hero__lede { max-width: 60ch; margin: 22px 0 10px; font-size: 1.125rem; color: var(--muted); }
-.hero__link { margin: 0 0 44px; font-weight: 500; }
+.hero__link { margin: 0 0 28px; font-weight: 500; }
 
 /* ---------- request path ---------- */
+/* Stays pinned under the header so the path is visible while typing in the chat box. */
+.flowbar { position: sticky; top: var(--header-h); z-index: 15; padding: 12px 0 8px; margin-bottom: 20px; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .flow__row { list-style: none; margin: 0; padding: 0; display: flex; align-items: stretch; }
 .flow__item { display: flex; align-items: stretch; }
 .flow__item:not(:last-child) { flex: 1 1 0; }
 .node {
-  flex: 0 0 auto; width: 176px; min-height: 76px; align-content: center; padding: 14px 16px; background: var(--surface);
+  flex: 0 0 auto; width: 196px; min-height: 56px; white-space: nowrap; align-content: center; padding: 9px 14px; background: var(--surface);
   border: 1px solid var(--line-strong); border-radius: 8px; display: grid; gap: 2px;
   transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
@@ -125,27 +127,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
   from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 50%, transparent); }
   to { box-shadow: 0 0 0 14px transparent; }
 }
-.link { position: relative; flex: 1 1 auto; min-width: 56px; height: 2px; align-self: center; margin-block: auto; }
+.link { position: relative; flex: 1 1 auto; min-width: 48px; height: 2px; align-self: center; margin-block: auto; }
 .link__line { display: block; position: relative; width: 100%; height: 2px; background: var(--line-strong); overflow: hidden; }
 .link__line::after { content: ""; position: absolute; inset: 0; background: var(--azure); transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease; }
 .link--on .link__line::after { transform: scaleX(1); }
 .flow--back .link__line::after { background: var(--mint); transform-origin: right; }
-.link__label { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-.flow__caption { margin: 34px 0 0; min-height: 1.6em; color: var(--muted); font-size: 0.9rem; }
+.link__label { position: absolute; left: 0; right: 0; top: 8px; text-align: center; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.flow__caption { margin: 14px 0 0; min-height: 1.4em; color: var(--muted); font-size: 0.85rem; }
 
-@media (max-width: 860px) {
-  .flow__row { flex-direction: column; align-items: stretch; }
-  .flow__item { flex-direction: column; align-items: stretch; }
-  .flow__item:not(:last-child) { flex: none; }
-  .node { width: 100%; }
-  .link { width: 2px; height: 40px; min-width: 0; align-self: flex-start; margin-left: 28px; }
-  .link__line { width: 2px; height: 100%; }
-  .link__line::after { transform: scaleY(0); transform-origin: top; }
-  .link--on .link__line::after { transform: scaleY(1); }
-  .flow--back .link__line::after { transform-origin: bottom; }
-  .link__label { left: 14px; right: auto; top: 50%; transform: translateY(-50%); text-align: left; }
-  .flow__caption { margin-top: 20px; }
+@media (max-width: 980px) {
+  /* Compact horizontal strip so it fits narrow screens and can stay pinned. */
+  .flowbar { padding: 10px 0 8px; margin-bottom: 14px; }
+  .flow__item:not(:last-child) { flex: 1 1 auto; }
+  .node { width: auto; min-height: 0; padding: 7px 8px; text-align: center; white-space: nowrap; }
+  .node strong { font-size: 0.78rem; line-height: 1.2; }
+  .node span, .link__label { display: none; }
+  .link { min-width: 8px; }
+  .flow__caption { margin-top: 8px; font-size: 0.78rem; }
 }
+@media (max-width: 380px) { .node strong { font-size: 0.7rem; } .node { padding: 6px; } }
 
 /* ---------- workspace ---------- */
 .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; align-items: start; padding-block: 8px 80px; }
