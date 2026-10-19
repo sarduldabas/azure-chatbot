@@ -193,6 +193,8 @@ const PROBLEMS = [
   ["The role Azure AI User wasn't found", "It was renamed Foundry User. Permissions are identical, so the script tries both names."],
   ["The sample agent asked for a model that didn't exist", "The sample defaults to its own model name. Set AZURE_AI_MODEL_DEPLOYMENT_NAME to your existing deployment before azd deploy."],
   ["Git treated the agent folder as a separate repository", "azd ai agent init creates its own .git folder. Remove it before pushing, otherwise the agent's files are skipped."],
+  ["GitHub login failed: no matching federated identity record", "GitHub now puts numeric owner and repo IDs in the sign-in token's subject. Register that form (repo:OWNER@ID/REPO@ID:ref:refs/heads/main) as a second federated credential."],
+  ["The web app showed status 426 for every API call", "nginx talks HTTP/1.0 to the API by default, and the Container Apps proxy rejects that. Add proxy_http_version 1.1 to the nginx config."],
   ["The first reply is slow", "The hosted agent and both apps scale to zero. The first request wakes them, which takes around ten seconds. Later replies are quicker."],
 ];
 

@@ -118,6 +118,21 @@ JSON
   rm -f "$FED"
 fi
 
+# GitHub now puts numeric owner/repo IDs in the token subject for newer repos
+# (repo:OWNER@ID/REPO@ID:...), so also trust that form. Public repos expose the IDs without a token.
+if [ -z "$(az ad app federated-credential list --id "$GH_APP_ID" --query "[?name=='github-main-ids'].name" -o tsv)" ]; then
+  OWNER_ID=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}" | python -c "import sys,json; d=json.load(sys.stdin); print(d['owner']['id'])" 2>/dev/null || true)
+  REPO_ID=$(curl -s "https://api.github.com/repos/${GITHUB_REPO}" | python -c "import sys,json; d=json.load(sys.stdin); print(d['id'])" 2>/dev/null || true)
+  if [ -n "$OWNER_ID" ] && [ -n "$REPO_ID" ]; then
+    FED=".fed-credential.json"
+    cat > "$FED" <<JSON
+{"name":"github-main-ids","issuer":"https://token.actions.githubusercontent.com","subject":"repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO##*/}@${REPO_ID}:ref:refs/heads/main","audiences":["api://AzureADTokenExchange"]}
+JSON
+    az ad app federated-credential create --id "$GH_APP_ID" --parameters "@$FED" -o none
+    rm -f "$FED"
+  fi
+fi
+
 echo "==> Permissions held by the managed identity (expect AcrPull + a Foundry role):"
 az role assignment list --assignee "$ID_PRINCIPAL" --all --query "[].{Role:roleDefinitionName, Scope:scope}" -o table
 
