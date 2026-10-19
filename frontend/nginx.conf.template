@@ -1,0 +1,19 @@
+# Rendered at container start: ${BACKEND_URL} is replaced from the environment.
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # API calls go to the FastAPI service (same-origin for the browser, so no CORS needed).
+    location /api/ {
+        proxy_pass ${BACKEND_URL};
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_ssl_server_name on;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}

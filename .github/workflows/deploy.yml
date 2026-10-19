@@ -1,0 +1,42 @@
+# Simplest possible pipeline: on every push to main, build both images and push
+# them to Azure Container Registry and roll the two Container Apps to the new images.
+name: build-and-deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # needed for passwordless (OIDC) login to Azure
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      ACR: ${{ vars.AZURE_ACR_NAME }}
+      RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push images
+        run: |
+          az acr login -n $ACR
+          docker build -t $ACR.azurecr.io/chatbot-backend:$TAG ./backend
+          docker build -t $ACR.azurecr.io/chatbot-frontend:$TAG ./frontend
+          docker push $ACR.azurecr.io/chatbot-backend:$TAG
+          docker push $ACR.azurecr.io/chatbot-frontend:$TAG
+
+      - name: Deploy to Container Apps
+        run: |
+          az extension add --name containerapp --upgrade -y
+          az containerapp update -n chatbot-backend  -g $RG --image $ACR.azurecr.io/chatbot-backend:$TAG
+          az containerapp update -n chatbot-frontend -g $RG --image $ACR.azurecr.io/chatbot-frontend:$TAG

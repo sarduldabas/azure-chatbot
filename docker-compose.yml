@@ -1,0 +1,30 @@
+# Local run:  docker compose up --build   ->  http://localhost:3000
+# Values come from the ".env" file next to this file.
+services:
+  backend:
+    build: ./backend
+    environment:
+      FOUNDRY_PROJECT_ENDPOINT: ${FOUNDRY_PROJECT_ENDPOINT}
+      FOUNDRY_AGENT_NAME: ${FOUNDRY_AGENT_NAME}
+      # Local-only credentials (service principal). Azure uses a managed identity instead.
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  frontend:
+    build: ./frontend
+    environment:
+      # Service-to-service URL: the compose service name acts as the hostname.
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
